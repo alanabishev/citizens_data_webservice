@@ -1,3 +1,4 @@
+// Package iin_validator provides functionality for validating Individual Identification Numbers (IIN).
 package iin_validator
 
 import (
@@ -6,6 +7,7 @@ import (
 	"unicode"
 )
 
+// Constants related to IIN validation.
 const (
 	IINLength                      = 12
 	FirstSixDigitsDateFormat       = "20060102" // YYYYMMDD
@@ -20,11 +22,13 @@ const (
 	Algorithm2                     = 2
 )
 
+// Weights for the two IIN validation algorithms.
 var (
 	weightsAlgorithm1 = [11]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
 	weightsAlgorithm2 = [11]int{3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2}
 )
 
+// ValidateIIN validates an IIN. It checks the length, digit-only content, date of birth, gender, and 12th digit.
 func ValidateIIN(iin string) error {
 	if len(iin) != IINLength {
 		return fmt.Errorf("IIN must be %d digits long", IINLength)
@@ -60,6 +64,7 @@ func ValidateIIN(iin string) error {
 	return nil
 }
 
+// GetGender determines the gender from the 7th digit of the IIN.
 func GetGender(digit int) (string, error) {
 	if err := validateSeventhDigit(digit); err != nil {
 		return "", err
@@ -73,6 +78,7 @@ func GetGender(digit int) (string, error) {
 	return "", fmt.Errorf("invalid digit")
 }
 
+// GetDateOfBirth extracts the date of birth from the first 6 digits of the IIN.
 func GetDateOfBirth(iin string) (time.Time, error) {
 	if len(iin) < 7 {
 		return time.Time{}, fmt.Errorf("input string is too short")
@@ -91,6 +97,7 @@ func GetDateOfBirth(iin string) (time.Time, error) {
 	return date, nil
 }
 
+// getCenturyOfBirth determines the century of birth from the 7th digit of the IIN.
 func getCenturyOfBirth(digit int) (int, error) {
 	if err := validateSeventhDigit(digit); err != nil {
 		return 0, err
@@ -106,6 +113,7 @@ func getCenturyOfBirth(digit int) (int, error) {
 	return 0, fmt.Errorf("invalid digit")
 }
 
+// validateSeventhDigit validates the 7th digit of the IIN.
 func validateSeventhDigit(digit int) error {
 	if digit < SeventhDigitMaleIIN19Century || digit > SeventhDigitFemaleIIN21Century {
 		return fmt.Errorf("invalid digit, must be between %d and %d inclusive", SeventhDigitMaleIIN19Century, SeventhDigitFemaleIIN21Century)
@@ -113,6 +121,7 @@ func validateSeventhDigit(digit int) error {
 	return nil
 }
 
+// calculate12thDigit calculates the 12th digit of the IIN using the specified algorithm.
 func calculate12thDigit(iin string, algorithm int) (int, error) {
 	if len(iin) < 11 {
 		return 0, fmt.Errorf("iin string too short")

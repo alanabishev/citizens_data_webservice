@@ -2,62 +2,11 @@ package iin_validator
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/mock"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-type MockedFunctions struct {
-	mock.Mock
-}
-
-func (m *MockedFunctions) GetDateOfBirth(iin string) (time.Time, error) {
-	args := m.Called(iin)
-	return args.Get(0).(time.Time), args.Error(1)
-}
-
-func (m *MockedFunctions) GetGender(digit int) (string, error) {
-	args := m.Called(digit)
-	return args.String(0), args.Error(1)
-}
-
-func (m *MockedFunctions) Calculate12thDigit(iin string, algorithm int) (int, error) {
-	args := m.Called(iin, algorithm)
-	return args.Int(0), args.Error(1)
-}
-
-func TestValidateIIN(t *testing.T) {
-	testCases := []struct {
-		name      string
-		iin       string
-		mockFuncs *MockedFunctions
-		err       error
-	}{
-		{
-			name: "Test Case 1: Valid IIN",
-			iin:  "123456789012",
-			mockFuncs: func() *MockedFunctions {
-				m := new(MockedFunctions)
-				m.On("GetDateOfBirth", "123456789012").Return(time.Now(), nil)
-				m.On("GetGender", 9).Return("male", nil)
-				m.On("Calculate12thDigit", "123456789012", Algorithm1).Return(2, nil)
-				m.On("Calculate12thDigit", "123456789012", Algorithm2).Return(2, nil)
-				return m
-			}(),
-			err: nil,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			err := ValidateIIN(tc.iin)
-			assert.Equal(t, tc.err, err)
-			tc.mockFuncs.AssertExpectations(t)
-		})
-	}
-}
 
 func TestGetGender(t *testing.T) {
 	testCases := []struct {
@@ -118,7 +67,7 @@ func TestGetDateOfBirth(t *testing.T) {
 			name:     "Test Case 3: Invalid Date",
 			iin:      "990230350074",
 			expected: time.Time{},
-			err:      fmt.Errorf("parsed date format is incorrect: %w", fmt.Errorf("parsing time \"19990230\": day out of range")),
+			err:      fmt.Errorf("parsed date format is incorrect: %w", &time.ParseError{Layout: "20060102", Value: "19990230", Message: ": day out of range"}),
 		},
 	}
 

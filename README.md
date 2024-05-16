@@ -38,12 +38,30 @@ Start the server:
 ./citizens_data_webservice
 ```
 
+### Linter
+
+To run golang-ci-lint, run the following command:
+```bash
+golangci-lint run
+```
+
+## Run Using Docker
+
+- docker build --pull --no-cache  -t citizen_webservice .
+- docker run -p 8082:8082 -d --name citizen_webservice citizen_webservice
+
 ## API Endpoints
 
 - `GET /iin_check/{iin}`: Validate a citizen's IIN
 - `POST /people/info`: Save a citizen's information
 - `GET /people/info/iin/{iin}`: Retrieve a citizen's information by IIN
 - `GET /people/info/name/{name}`: Retrieve a citizen's information by name
+
+
+## Limitations/ Improvements
+
+1. Security - the current implementation uses BasicAuth for authentication. A more secure method should be used.
+2. Test coverage should be improved
 
 ## License
 

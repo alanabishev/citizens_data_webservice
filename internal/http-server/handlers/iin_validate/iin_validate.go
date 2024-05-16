@@ -1,3 +1,4 @@
+// Package iin_validate provides HTTP handlers for validating IIN (Individual Identification Number).
 package iin_validate
 
 import (
@@ -11,15 +12,19 @@ import (
 	"github.com/go-chi/render"
 )
 
+// OutputDateFormat is the format for the date of birth in the response.
 const OutputDateFormat = "02.01.2006"
 
+// ValidateByIINResponse is the response structure for the Execute handler.
 type ValidateByIINResponse struct {
-	resp.Response
 	Correct     bool   `json:"correct"`
 	Sex         string `json:"sex"`
 	DateOfBirth string `json:"date_of_birth"`
 }
 
+// Execute is a HTTP handler function for validating an IIN.
+// It retrieves the IIN from the URL parameter, validates the IIN,
+// gets the gender and date of birth from the IIN, and returns a JSON response.
 func Execute(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.iin_validate"
@@ -39,7 +44,6 @@ func Execute(log *slog.Logger) http.HandlerFunc {
 		if err != nil {
 			log.Error("failed to validate IIN", Err(err))
 			render.JSON(w, r, ValidateByIINResponse{
-				Response:    resp.OK(),
 				Correct:     false,
 				Sex:         "",
 				DateOfBirth: "",
@@ -62,7 +66,6 @@ func Execute(log *slog.Logger) http.HandlerFunc {
 		formattedDOB := dateOfBirth.Format(OutputDateFormat)
 		log.Info("IIN Validated", slog.String("gender", gender), slog.String("date of birth", formattedDOB))
 		render.JSON(w, r, ValidateByIINResponse{
-			Response:    resp.OK(),
 			Correct:     true,
 			Sex:         gender,
 			DateOfBirth: formattedDOB,
@@ -70,6 +73,7 @@ func Execute(log *slog.Logger) http.HandlerFunc {
 	}
 }
 
+// Err is a helper function to create a structured log attribute for errors.
 func Err(err error) slog.Attr {
 	return slog.Attr{
 		Key:   "error",

@@ -16,8 +16,8 @@ import (
 // Request is the structure for the request body of the Person handler.
 type Request struct {
 	IIN   string `json:"iin" validate:"required,len=12,iin"` // Individual Identification Number
-	Name  string `json:"name" validate:"required"`           // Name of the person
-	Phone string `json:"phone" validate:"required"`          // Phone number of the person
+	Name  string `json:"name" validate:"required,name"`      // Name of the person
+	Phone string `json:"phone" validate:"required,phone"`    // Phone number of the person
 }
 
 // PersonSaver is an interface for saving person information.

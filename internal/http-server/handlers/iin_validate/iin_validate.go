@@ -3,12 +3,14 @@ package iin_validate
 
 import (
 	resp "citizen_webservice/internal/http-server/handlers/response"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
 	"citizen_webservice/internal/iin_validator"
+
 	"github.com/go-chi/render"
 )
 
@@ -29,7 +31,7 @@ func Execute(log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.iin_validate"
 
-		log := log.With(
+		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
@@ -58,8 +60,8 @@ func Execute(log *slog.Logger) http.HandlerFunc {
 		}
 		dateOfBirth, err := iin_validator.GetDateOfBirth(iin)
 		if err != nil {
-			log.Error("failed to get gender", Err(err))
-			render.JSON(w, r, resp.Error("failed to get gender"))
+			log.Error("failed to get date of birth", Err(err))
+			render.JSON(w, r, resp.Error("failed to get date of birth"))
 			return
 		}
 

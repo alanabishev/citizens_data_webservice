@@ -5,6 +5,7 @@ import (
 	"citizen_webservice/internal/config"
 	handlerDelete "citizen_webservice/internal/http-server/handlers/delete"
 	"citizen_webservice/internal/http-server/handlers/get"
+	"citizen_webservice/internal/http-server/handlers/health"
 	"citizen_webservice/internal/http-server/handlers/iin_validate"
 	"citizen_webservice/internal/http-server/handlers/save"
 	"citizen_webservice/internal/storage/sqlite"
@@ -12,14 +13,15 @@ import (
 	mwLogger "citizen_webservice/internal/http-server/middleware/logger"
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -39,16 +41,16 @@ func main() {
 	// 2. Logger
 	log := setupLogger(cfg.Env)
 	log.Info(
-		"starting url-shortener",
+		"starting citizens-data-webservice",
 		slog.String("env", cfg.Env),
-		slog.String("version", "123"),
+		slog.String("version", "1.0.0"),
 	)
 	log.Debug("debug messages are enabled")
 
 	// 3. Storage
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
-		log.Error("failed to initialize storage", err)
+		log.Error("failed to initialize storage", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -59,6 +61,9 @@ func main() {
 	router.Use(middleware.URLFormat)
 	router.Use(middleware.Recoverer)
 	router.Use(mwLogger.New(log))
+
+	// Health check endpoint (no auth required)
+	router.Get("/health", health.Check(log))
 
 	// Define the routes for the HTTP server.
 	router.Route("/", func(r chi.Router) {
@@ -89,7 +94,7 @@ func main() {
 	// Start the HTTP server in a separate goroutine.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Error("failed to start server", err)
+			log.Error("failed to start server", slog.Any("error", err))
 		}
 	}()
 

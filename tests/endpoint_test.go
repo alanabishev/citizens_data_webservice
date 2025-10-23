@@ -2,10 +2,11 @@ package tests
 
 import (
 	"fmt"
-	"github.com/gavv/httpexpect/v2"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/gavv/httpexpect/v2"
 )
 
 const (
@@ -64,7 +65,7 @@ func TestSavePersonEndpoint(t *testing.T) {
 
 	e := httpexpect.Default(t, u.String())
 
-	test_iin := "980301450725"
+	testIin := "980301450725"
 
 	// 1) Empty JSON body
 	e.POST("/people/info").
@@ -94,7 +95,7 @@ func TestSavePersonEndpoint(t *testing.T) {
 	e.POST("/people/info").
 		WithBasicAuth("user", "password").
 		WithJSON(map[string]interface{}{
-			"iin":   test_iin,
+			"iin":   testIin,
 			"name":  "Test Name",
 			"phone": "1234567890",
 		}).
@@ -108,7 +109,7 @@ func TestSavePersonEndpoint(t *testing.T) {
 	e.POST("/people/info").
 		WithBasicAuth("user", "password").
 		WithJSON(map[string]interface{}{
-			"iin":   test_iin,
+			"iin":   testIin,
 			"name":  "Test Name",
 			"phone": "1234567891",
 		}).
@@ -133,7 +134,7 @@ func TestSavePersonEndpoint(t *testing.T) {
 		ContainsKey("errors").HasValue("errors", []string{"Failed to save person: storage.sqlite.SavePerson: phone number already exists"})
 
 	// Delete a person with a specific IIN
-	e.DELETE(fmt.Sprintf("/people/delete/%s", test_iin)).
+	e.DELETE(fmt.Sprintf("/people/delete/%s", testIin)).
 		WithBasicAuth("user", "password").
 		Expect().
 		Status(http.StatusOK)
@@ -147,7 +148,7 @@ func TestGetPersonByIINEndpoint(t *testing.T) {
 
 	e := httpexpect.Default(t, u.String())
 
-	test_iin := "980301450725"
+	testIin := "980301450725"
 
 	// 1) Get a person with empty IIN parameter
 	e.GET("/people/info/iin/").
@@ -162,7 +163,7 @@ func TestGetPersonByIINEndpoint(t *testing.T) {
 		Status(http.StatusBadRequest)
 
 	// 3) Get a person with valid IIN but the person is not yet in the database
-	e.GET(fmt.Sprintf("/people/info/iin/%s", test_iin)).
+	e.GET(fmt.Sprintf("/people/info/iin/%s", testIin)).
 		WithBasicAuth("user", "password").
 		Expect().
 		Status(http.StatusNotFound)
@@ -171,7 +172,7 @@ func TestGetPersonByIINEndpoint(t *testing.T) {
 	e.POST("/people/info").
 		WithBasicAuth("user", "password").
 		WithJSON(map[string]interface{}{
-			"iin":   test_iin,
+			"iin":   testIin,
 			"name":  "Test Name",
 			"phone": "1234567890",
 		}).
@@ -181,16 +182,16 @@ func TestGetPersonByIINEndpoint(t *testing.T) {
 		ContainsKey("success").HasValue("success", true).
 		ContainsKey("errors").HasValue("errors", nil)
 
-	e.GET(fmt.Sprintf("/people/info/iin/%s", test_iin)).
+	e.GET(fmt.Sprintf("/people/info/iin/%s", testIin)).
 		WithBasicAuth("user", "password").
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object().
 		ContainsKey("success").HasValue("success", true).
-		ContainsKey("IIN").HasValue("IIN", test_iin)
+		ContainsKey("IIN").HasValue("IIN", testIin)
 
 	// And delete him
-	e.DELETE(fmt.Sprintf("/people/delete/%s", test_iin)).
+	e.DELETE(fmt.Sprintf("/people/delete/%s", testIin)).
 		WithBasicAuth("user", "password").
 		Expect().
 		Status(http.StatusOK)
@@ -204,7 +205,7 @@ func TestGetPersonByNameEndpoint(t *testing.T) {
 
 	e := httpexpect.Default(t, u.String())
 
-	test_name := "Sally"
+	testName := "Sally"
 
 	// 1) Get a person with empty name parameter
 	e.GET("/people/info/name/").
@@ -217,7 +218,7 @@ func TestGetPersonByNameEndpoint(t *testing.T) {
 		WithBasicAuth("user", "password").
 		WithJSON(map[string]interface{}{
 			"iin":   "980301450725",
-			"name":  test_name,
+			"name":  testName,
 			"phone": "1234567890",
 		}).
 		Expect().

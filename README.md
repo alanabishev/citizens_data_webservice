@@ -15,7 +15,7 @@ This project is a web service written in Go that provides functionalities relate
 
 ### Prerequisites
 
-- Go 1.21 or later
+- Go 1.24.9 or later
 - SQLite
 
 ### Installation
